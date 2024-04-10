@@ -5,58 +5,74 @@ function showHello(divName: string, name: string) {
     elt!.innerText = `Hello from ${name}`;
 }
 
-interface IMultimediaPlayer {
+interface IMediaPlayer {
     play(file: string): void;
     stop(file: string): void;
 }
 
-interface IMultimediaController {
-    playMedia(file: string): void;
-    stopMedia(file: string): void;
-}
-
-
-class AudioPlayer implements IMultimediaController {
-    playMedia(file: string): void {
+class AudioPlayer implements IMediaPlayer {
+    play(file: string): void {
         console.log(`Playing audio file: ${file}`);
-    };
-    stopMedia(file: string): void {
+    }
+
+    stop(file: string): void {
         console.log(`Stopping audio file: ${file}`);
     }
 }
 
-class VideoPlayer implements IMultimediaController {
-    playMedia(file: string): void {
+class VideoPlayer implements IMediaPlayer {
+    play(file: string): void {
         console.log(`Playing video file: ${file}`);
-    };
-    stopMedia(file: string): void {
+    }
+
+    stop(file: string): void {
         console.log(`Stopping video file: ${file}`);
     }
 }
 
-class MultimediaPlayerFacade implements IMultimediaPlayer {
+class MultimediaPlayerFacade {
     private readonly audioPlayer: AudioPlayer;
     private readonly videoPlayer: VideoPlayer;
 
-    constructor(audioPlayer?: AudioPlayer, videoPlayer?: VideoPlayer ) {
-        this.audioPlayer = audioPlayer || new AudioPlayer();
-        this.videoPlayer = videoPlayer || new VideoPlayer();
+    constructor() {
+        this.audioPlayer = new AudioPlayer();
+        this.videoPlayer = new VideoPlayer();
     }
 
     play(file: string): void {
-        this.audioPlayer ? this.audioPlayer.playMedia(file) : this.videoPlayer.playMedia(file);
+        if (this.isAudioFile(file)) {
+            this.audioPlayer.play(file);
+        } else if (this.isVideoFile(file)) {
+            this.videoPlayer.play(file);
+        } else {
+            console.log(`Unsupported file format: ${file}`);
+        }
     }
 
     stop(file: string): void {
-        this.audioPlayer ? this.audioPlayer.stopMedia(file) : this.videoPlayer.stopMedia(file);
+        if (this.isAudioFile(file)) {
+            this.audioPlayer.stop(file);
+        } else if (this.isVideoFile(file)) {
+            this.videoPlayer.stop(file);
+        } else {
+            console.log(`Unsupported file format: ${file}`);
+        }
+    }
+
+    private isAudioFile(file: string): boolean {
+        return file.endsWith('.mp3') || file.endsWith('.wav');
+    }
+
+    private isVideoFile(file: string): boolean {
+        return file.endsWith('.mp4') || file.endsWith('.avi') || file.endsWith('.mov');
     }
 }
 
-const videoPlayer = new VideoPlayer();
-const audioPlayer = new AudioPlayer();
-const multimediaVideoPlayer: IMultimediaPlayer = new MultimediaPlayerFacade(videoPlayer);
-const multimediaAudioPlayer: IMultimediaPlayer = new MultimediaPlayerFacade(audioPlayer);
-multimediaAudioPlayer.play('song.mp3');
-multimediaVideoPlayer.play('movie.mp4');
+// Використання фасаду для відтворення медіа
+const player = new MultimediaPlayerFacade();
+player.play('song.mp3');
+player.play('movie.mp4');
+player.play('image.jpg');
+
 
 
